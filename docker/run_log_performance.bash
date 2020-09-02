@@ -24,7 +24,6 @@
 #   an X server
 # Recommended:
 #   A joystick mounted to /dev/input/js0 or /dev/input/js1
-
 if [ $# -lt 1 ]
 then
     echo "Usage: $0 <docker image> [<dir with workspace> ...]"
@@ -76,6 +75,11 @@ if [ -f $VIMRC ]
 then
   DOCKER_OPTS="$DOCKER_OPTS -v $VIMRC:/home/developer/.vimrc:ro"
 fi
+VIMPLUGINS=~/.vim
+if [ -d ~/.vim/ ]
+then
+  DOCKER_OPTS="$DOCKER_OPTS -v $VIMPLUGINS:/home/developer/.vim:ro"
+fi
 
 # Prevent executing "docker run" when xauth failed.
 if [ ! -f $XAUTH ]
@@ -83,10 +87,6 @@ then
   echo "[$XAUTH] was not properly created. Exiting..."
   exit 1
 fi
-
-# Mount extra volumes if needed.
-# E.g.:
-# -v "/opt/sublime_text:/opt/sublime_text" \
 
 # Developer note: If you are running docker in cloudsim then make sure to add
 # -e IGN_PARTITION=subt to the following command.
@@ -104,5 +104,4 @@ docker run -it \
   --privileged \
   --security-opt seccomp=unconfined \
   $DOCKER_OPTS \
-  $IMG \
-  ${@:2}
+  $IMG
